@@ -1,6 +1,10 @@
 {{ config(
     materialized='table',
-    partition_by = 'date'
+    partition_by={
+      "field": "order_date",
+      "data_type": "date",
+      "granularity": "day"
+    }
 ) }}
 
 WITH vendor_data AS (
@@ -19,8 +23,8 @@ WITH vendor_data AS (
 )
 
 SELECT
-    DATE(order_placed_at) AS date
-  , vendor_id
+    DATE(order_placed_at) AS order_date
+  , order_data.vendor_id
   , vendor_vertical
   , vendor_name
   , COUNT(DISTINCT order_id) AS total_orders
