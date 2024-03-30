@@ -39,4 +39,6 @@ models:
   fact_dimensions_modelling:
       # Applies to all files under models/.../
       materialized: table
-      schema: dbt_dimensional_model
+  daily_agg:
+      # Applies to all files under models/.../
+      materialized: table
