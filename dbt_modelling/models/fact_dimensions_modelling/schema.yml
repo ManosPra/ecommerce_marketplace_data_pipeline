@@ -79,7 +79,7 @@ models:
         tests:
           - not_null
 
-  - name: dim_items
+  - name: dim_products
     description: "Dimension table containing item details"
     columns:
       - name: item_sku
