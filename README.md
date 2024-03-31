@@ -18,7 +18,7 @@ Key aspects to address include:
 - **Analytics Engineering:** Implement dimensional modelling using dbt to create fact and dimension tables that are optimized for analytics.
 - **Real-time Data Streaming:** Build a streaming data pipeline with Google Pub/Sub to handle incoming data streams in real-time.
 - **Orchestration:** Orchestrate the pipelines with Mage deployed to Google Cloud Run.
-- **Visualization:** Use Google Looker Studio for batch data and Grafana for data streams.
+- **Visualization:** Use Grafana to visualize real-time data updates.
 
 ## Instructions
 ---
@@ -98,7 +98,7 @@ We used [Google Cloud Console UI](https://console.cloud.google.com/cloudpubsub/t
 
 Then we can add the following code to our python producer script, to send the synthetic order streams to our <code>orders-topic</code>:
 
-<code>
+<pre>
 from google.cloud import pubsub_v1
 project_id = 'gothic-avenue-412217'
 topic_name = 'orders_topic'
@@ -108,4 +108,12 @@ publisher = pubsub_v1.PublisherClient()
 topic_path = publisher.topic_path(project_id, topic_name)
 # Publish the message to the topic
 publisher.publish(topic_path, data=json.dumps(order_message).encode('utf-8'))
-</code>
+</pre>
+
+After running our script, we can go back to the BigQuery table we defined in the subcription, to check the order streams that are ingested in real time.
+
+## 6. Visualization
+For the visualization part of the project, we needed a tool capable of handling real-time data updates. For this task, we used [Grafana Cloud](https://grafana.com/products/cloud/) which offers a free trial.
+[This](https://manospra.grafana.net/d/cdgqigfoderk0a/ecommerce-live-dashboard?orgId=1&from=now-5m&to=now&refresh=auto) is a sample dashboard we can build in grafana to monitor the order-streams, after triggering our stream producer in Mage:
+
+![](https://github.com/ManosPra/ecommerce_marketplace_data_pipeline/blob/main/screenshots/grafana.gif)
