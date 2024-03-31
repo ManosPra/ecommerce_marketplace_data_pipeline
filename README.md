@@ -23,33 +23,43 @@ Key aspects to address include:
 ## Instructions
 ---
 ## 1. Set up Infrastructure using Terraform
-Set up a Google Cloud Platform project and service account following the instructions [here](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/01-docker-terraform/1_terraform_gcp/2_gcp_overview.md#initial-setup)
+Set up a Google Cloud Platform project and service account following the instructions [here](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/01-docker-terraform/1_terraform_gcp/2_gcp_overview.md#initial-setup).
 
 ## 2. Deploy Mage to GCP with Terraform
 Following the instructions from [Mage docs](https://docs.mage.ai/production/deploying-to-cloud/gcp/setup). Make sure you have installed:
 - terraform
 - gcloud CLI
 
-**1.** Clone [mage-ai-terraform-templates github repo](https://github.com/mage-ai/mage-ai-terraform-templates) and edit the /gcp/variables.tf file with your specific project details.
+1. Clone [mage-ai-terraform-templates github repo](https://github.com/mage-ai/mage-ai-terraform-templates) and edit the /gcp/variables.tf file with your specific project details.
 
-**2.** Change directory
+2. Change directory
 <pre>
 $ cd gcp
 </pre>
-**3.** Initialize Terraform
+3. Initialize Terraform
 <pre>
 $ terraform init
 </pre>
-**4.** Deploy
+4. Deploy
 <pre>
 $ terraform apply
 </pre>
 You will see a notification here if you have not enabled any Google Cloud API or resource. To do so, log in to your Cloud Console and use the search bar to find the resource you need to enable. Before retrying steps 3 and 4, make sure you:
-
-At this stage we can visit 
 <pre>
 $ terraform destroy
 </pre>
+At this stage we can visit [Cloud Run](https://console.cloud.google.com/run?referrer=search&project=gothic-avenue-412217) on Google Cloud to view our Mage app. For this project, we have allowed all users to access our service [here](https://mage-tlblwyjvja-wl.a.run.app/overview), however we can whitelist only specific IPs.
+
+As a final step, we can configure our Mage service to use our project's <code>GOOGLE APPLICATION CREDENTIALS</code> as a secret, using Google's Secret Manager and then allowing cloud run to access the secret, as described [here](https://cloud.google.com/run/docs/configuring/services/secrets#mounting-secrets-service).
+
+## 3. Mage Pipelines
+We can now create our **batch** load pipeline in Mage UI, that will generate synthetic data related to orders an online ecommerce marketplace receives. We name the pipeline <code>load_batch_to_bq</code> .[This pipeline](https://github.com/ManosPra/ecommerce_marketplace_data_pipeline/tree/main/mage_pipelines/batch_load) consists of a:
+- Data Loader
+- Transformer
+- Data Exporter
+
+that essentially are python files that generate synthetic data, then perform some data quality checks and finally load a dataframe to BigQuery.
+
 
 
 #### Generating Synthetic Data
