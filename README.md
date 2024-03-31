@@ -15,7 +15,7 @@ Key aspects to address include:
 
 - **Data Generation:** Generate realistic synthetic data representative of ecommerce transactions, customer interactions, and product catalog changes.
 - **Data Processing:** Implement a batch processing pipeline to handle large volumes of historical data efficiently and load in a Google BigQuery data lake.
-- **Analytics Engineering:** Implement dimensional modelling using dbt to create fact and dimension tables.
+- **Analytics Engineering:** Implement dimensional modelling using dbt to create fact and dimension tables that are optimized for analytics.
 - **Real-time Data Streaming:** Build a streaming data pipeline with Google Pub/Sub to handle incoming data streams in real-time.
 - **Orchestration:** Orchestrate the pipelines with Mage deployed to Google Cloud Run.
 - **Visualization:** Use Google Looker Studio for batch data and Grafana for data streams.
@@ -53,15 +53,27 @@ At this stage we can visit [Cloud Run](https://console.cloud.google.com/run?refe
 As a final step, we can configure our Mage service to use our project's <code>GOOGLE APPLICATION CREDENTIALS</code> as a secret, using Google's Secret Manager and then allowing cloud run to access the secret, as described [here](https://cloud.google.com/run/docs/configuring/services/secrets#mounting-secrets-service).
 
 ## 3. Mage Pipelines
-We can now create our **batch** load pipeline in Mage UI, that will generate synthetic data related to orders an online ecommerce marketplace receives. We name the pipeline <code>load_batch_to_bq</code> .[This pipeline](https://github.com/ManosPra/ecommerce_marketplace_data_pipeline/tree/main/mage_pipelines/batch_load) consists of a:
+We can now create our **batch** load pipeline in Mage UI, that will generate synthetic data related to orders an online ecommerce marketplace receives. We name the pipeline <code>load_batch_to_bq</code>. [The pipeline](https://github.com/ManosPra/ecommerce_marketplace_data_pipeline/tree/main/mage_pipelines/batch_load) consists of a:
 - Data Loader
 - Transformer
 - Data Exporter
 
 that essentially are python files that generate synthetic data, then perform some data quality checks and finally load a dataframe to BigQuery.
 
+We can now schedule this pipeline to run every day, simulating an end-to-end pipeline that loads raw data to our data lake.
 
+## 4. Dimensional Modelling
+At this stage of the project we are going to use dbt cloud to create fact and dimension tables based on the raw table we ingested to BigQuery with the batch load pipeline. More on dimensional modelling [here](https://docs.getdbt.com/terms/dimensional-modeling).
+In dbt we initially create 4 models:
+- [fact_orders](https://github.com/ManosPra/ecommerce_marketplace_data_pipeline/blob/main/dbt_modelling/models/fact_dimensions_modelling/fact_orders.sql) 
+- [dim_customers](https://github.com/ManosPra/ecommerce_marketplace_data_pipeline/blob/main/dbt_modelling/models/fact_dimensions_modelling/dim_customers.sql)
+- [dim_vendors](https://github.com/ManosPra/ecommerce_marketplace_data_pipeline/blob/main/dbt_modelling/models/fact_dimensions_modelling/dim_vendors.sql)
+- [dim_products](https://github.com/ManosPra/ecommerce_marketplace_data_pipeline/blob/main/dbt_modelling/models/fact_dimensions_modelling/dim_products.sql)
 
+forming a star-schema for our data-warehoue.
+On top of these models, we are also creating an [orders daily aggregated table](https://github.com/ManosPra/ecommerce_marketplace_data_pipeline/blob/main/dbt_modelling/models/daily_agg/orders_daily_agg.sql) that holds information on orders pre-aggregated on a daily level, partitioned on <code>order_date</code>.
+
+This type of modeling facilitates analytics queries and distinguishes the raw orders table we loaded in the previous step with the 5 tables we mentioned that are optimized for analysis purposes.
 #### Generating Synthetic Data
 
 The first pipeline generates synthetic ecommerce data. Here's an example of the data generation process:
